@@ -1,4 +1,6 @@
 plugins {
+    id("kotlin-kapt")
+    alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
 }
@@ -67,7 +69,17 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //viewmodelCompose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     //Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    //hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+}
+kapt{
+    correctErrorTypes=true
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.Canvas
 import coil3.Image
 import coil3.annotation.ExperimentalCoilApi
@@ -25,7 +27,7 @@ import com.gilbersoncampos.cardgame.data.model.Card
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun GameScreen() {
+fun GameScreen(viewmodel: GameScreenViewModel = viewModel()) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -45,8 +47,16 @@ fun GameScreen() {
 
 @Composable
 fun DeckComponent() {
-    Column() {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Image(painter = painterResource(R.drawable.back), contentDescription = null)
+        Row {
+            Button(onClick = {}) {
+                Text("Pedir")
+            }
+            Button(onClick = {}) {
+                Text("Parar")
+            }
+        }
     }
 }
 
