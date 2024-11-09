@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 android {
@@ -42,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -79,6 +80,14 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+    //hilt Navigation
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    implementation(libs.kotlinx.serialization.json)
+    //retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
 }
 kapt{
     correctErrorTypes=true

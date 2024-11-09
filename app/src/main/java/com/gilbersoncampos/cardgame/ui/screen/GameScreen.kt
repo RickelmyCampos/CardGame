@@ -6,15 +6,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.Canvas
 import coil3.Image
@@ -27,36 +31,64 @@ import com.gilbersoncampos.cardgame.data.model.Card
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun GameScreen(viewmodel: GameScreenViewModel = viewModel()) {
+fun GameScreen(viewmodel: GameScreenViewModel = hiltViewModel()) {
+    val uiState by viewmodel.uiState.collectAsState()
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val card = Card(
-            code = "7C",
-            value = 7,
-            suit = "CLUBS",
-            image = "https://deckofcardsapi.com/static/img/7C.png"
+
+        PlayerComponent(
+            playerName = "Dealer",
+            hand = uiState.dealerHand,
+            points = uiState.dealerPoints
         )
-        PlayerComponent(playerName = "Computer", card = card)
-        DeckComponent()
-        PlayerComponent(playerName = "Player", card = card)
+        DeckComponent(
+            eventMessage = uiState.eventsMessage,
+            idGame = uiState.deckId,
+            gameIsFinished = uiState.gameIsFinished,
+            onClickDraw = viewmodel::drawPlayerCard,
+            onStopGame = viewmodel::stopGame,
+            onRestartGame = viewmodel::restartGame
+
+        )
+        PlayerComponent(
+            playerName = "Player",
+            hand = uiState.playerHand,
+            points = uiState.playerPoints
+        )
     }
 }
 
 @Composable
-fun DeckComponent() {
+fun DeckComponent(
+    eventMessage: String,
+    idGame: String,
+    gameIsFinished: Boolean,
+    onClickDraw: () -> Unit,
+    onStopGame: () -> Unit,
+    onRestartGame: () -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(eventMessage)
         Image(painter = painterResource(R.drawable.back), contentDescription = null)
-        Row {
-            Button(onClick = {}) {
-                Text("Pedir")
+        if (gameIsFinished) {
+            Button(onClick = onRestartGame) {
+                Text("Reiniciar")
             }
-            Button(onClick = {}) {
-                Text("Parar")
+        } else {
+            Row {
+                Button(onClick = onClickDraw) {
+                    Text("Pedir")
+                }
+                Button(onClick = onStopGame) {
+                    Text("Parar")
+                }
             }
         }
+
+        Text("deck: $idGame")
     }
 }
 
@@ -64,7 +96,8 @@ fun DeckComponent() {
 @OptIn(ExperimentalCoilApi::class)
 private fun PlayerComponent(
     playerName: String,
-    card: Card
+    hand: List<Card>,
+    points: Int
 ) {
     val previewHandler = AsyncImagePreviewHandler {
         object : Image {
@@ -81,18 +114,23 @@ private fun PlayerComponent(
             }
         }
     }
-    Column (modifier = Modifier.fillMaxWidth()){
-        Text(playerName)
-        Row (modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.Center){
-            CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
-                repeat(4) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("$playerName : $points points")
+        CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
+            LazyRow {
+                items(hand) { card ->
+
                     AsyncImage(
                         model = card.image,
                         contentDescription = null,
                         placeholder = painterResource(R.drawable.back)
                     )
+
                 }
             }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+
         }
     }
 }
