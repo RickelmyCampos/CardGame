@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Card game</string>
+    <string name="restart">Restart</string>
+    <string name="hit">Hit</string>
+    <string name="break_game">Break</string>
+    <string name="deck_id">Deck: %1$s</string>
+    <string name="dealer">Dealer</string>
+    <string name="player">Player</string>
+</resources>

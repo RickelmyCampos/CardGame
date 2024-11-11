@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gilbersoncampos.cardgame.data.mapper.toModel
 import com.gilbersoncampos.cardgame.data.model.Card
 import com.gilbersoncampos.cardgame.data.remote.dataSource.DecksCardDataSource
+import com.gilbersoncampos.cardgame.data.repository.BlackJackGameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GameScreenViewModel @Inject constructor(private val dataSource: DecksCardDataSource) :
+class GameScreenViewModel @Inject constructor(private val repository: BlackJackGameRepository) :
     ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -37,7 +38,7 @@ class GameScreenViewModel @Inject constructor(private val dataSource: DecksCardD
     }
 
     fun restartGame() {
-        _uiState.update { old->
+        _uiState.update { old ->
             old.copy(
                 playerHand = listOf(),
                 dealerHand = listOf(),
@@ -52,17 +53,14 @@ class GameScreenViewModel @Inject constructor(private val dataSource: DecksCardD
     private fun createDeck(deckId: String) {
         viewModelScope.launch {
             updateEventMessage("Embaralhando Cartas ...")
-            runCatching {
-                dataSource.getDeckCardsShuffled(deckId = deckId, 6)
-            }.onSuccess { result ->
-                _uiState.update { it.copy(deckId = result.deck_id) }
+
+            repository.getShuffledDeck(deckId = deckId, 6).collect { id ->
+                _uiState.update { it.copy(deckId = id) }
                 updateEventMessage("Jogo iniciado")
                 repeat(2) {
                     drawCardDealer()
                     drawPlayerCard()
                 }
-            }.onFailure { e ->
-                updateEventMessage("Erro ao buscar deck: ${e.message}")
             }
         }
     }
@@ -73,36 +71,29 @@ class GameScreenViewModel @Inject constructor(private val dataSource: DecksCardD
 
     fun drawPlayerCard() {
         viewModelScope.launch {
-            runCatching {
-                dataSource.drawCard(_uiState.value.deckId)
-            }.onSuccess { response ->
-                val updatedPlayerHand = _uiState.value.playerHand + response.toModel()
+
+            repository.drawCard(_uiState.value.deckId).collect { card ->
+                val updatedPlayerHand = _uiState.value.playerHand + card
                 _uiState.update {
                     it.copy(
                         playerHand = updatedPlayerHand,
                         playerPoints = calculateHandValue(updatedPlayerHand)
                     )
                 }
-            }.onFailure { e ->
-                updateEventMessage("Erro ao puxar carta: ${e.message}")
             }
+
         }
     }
 
     private suspend fun drawCardDealer() {
-        runCatching {
-            dataSource.drawCard(_uiState.value.deckId)
-        }.onSuccess { response ->
-            val updatedDealerHand = _uiState.value.dealerHand + response.toModel()
+        repository.drawCard(_uiState.value.deckId).collect { card ->
+            val updatedDealerHand = _uiState.value.dealerHand + card
             _uiState.update {
                 it.copy(
                     dealerHand = updatedDealerHand,
                     dealerPoints = calculateHandValue(updatedDealerHand)
                 )
             }
-
-        }.onFailure { e ->
-            updateEventMessage("Erro ao puxar carta do dealer: ${e.message}")
         }
     }
 

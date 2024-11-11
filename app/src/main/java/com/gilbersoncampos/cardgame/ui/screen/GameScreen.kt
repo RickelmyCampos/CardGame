@@ -4,11 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -17,7 +21,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.Canvas
@@ -27,7 +34,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import com.gilbersoncampos.cardgame.R
-import com.gilbersoncampos.cardgame.data.model.Card
+import com.gilbersoncampos.cardgame.data.model.Card as CardGame
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -40,7 +47,7 @@ fun GameScreen(viewmodel: GameScreenViewModel = hiltViewModel()) {
     ) {
 
         PlayerComponent(
-            playerName = "Dealer",
+            playerName = stringResource(R.string.dealer),
             hand = uiState.dealerHand,
             points = uiState.dealerPoints
         )
@@ -54,7 +61,7 @@ fun GameScreen(viewmodel: GameScreenViewModel = hiltViewModel()) {
 
         )
         PlayerComponent(
-            playerName = "Player",
+            playerName = stringResource(R.string.player),
             hand = uiState.playerHand,
             points = uiState.playerPoints
         )
@@ -73,22 +80,31 @@ fun DeckComponent(
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(eventMessage)
         Image(painter = painterResource(R.drawable.back), contentDescription = null)
+
         if (gameIsFinished) {
-            Button(onClick = onRestartGame) {
-                Text("Reiniciar")
+            Dialog(onDismissRequest = onRestartGame) {
+                Card() {
+                    Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(eventMessage)
+                        Spacer(Modifier.height(8.dp))
+                        Button(onClick = onRestartGame) {
+                            Text(stringResource(R.string.restart))
+                        }
+                    }
+                }
             }
         } else {
             Row {
                 Button(onClick = onClickDraw) {
-                    Text("Pedir")
+                    Text(stringResource(R.string.hit))
                 }
                 Button(onClick = onStopGame) {
-                    Text("Parar")
+                    Text(stringResource(R.string.break_game))
                 }
             }
         }
 
-        Text("deck: $idGame")
+        Text(stringResource(R.string.deck_id, idGame))
     }
 }
 
@@ -96,7 +112,7 @@ fun DeckComponent(
 @OptIn(ExperimentalCoilApi::class)
 private fun PlayerComponent(
     playerName: String,
-    hand: List<Card>,
+    hand: List<CardGame>,
     points: Int
 ) {
     val previewHandler = AsyncImagePreviewHandler {
@@ -138,6 +154,12 @@ private fun PlayerComponent(
 @Composable
 @Preview(showBackground = true)
 fun GameScreenPreview() {
-    GameScreen()
+    DeckComponent(
+        eventMessage = "Player Wins",
+        idGame = "",
+        gameIsFinished = true,
+        onRestartGame = {},
+        onStopGame = {},
+        onClickDraw = {})
 }
 

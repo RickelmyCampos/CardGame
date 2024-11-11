@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Card game</string>
+    <string name="restart">Reiniciar</string>
+    <string name="hit">Pedir</string>
+    <string name="break_game">Parar</string>
+    <string name="deck_id">Deck: %1$s</string>
+    <string name="dealer">Distribuidor</string>
+    <string name="player">Jogador</string>
 </resources>
