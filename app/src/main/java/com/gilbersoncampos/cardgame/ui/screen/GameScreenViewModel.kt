@@ -50,7 +50,7 @@ class GameScreenViewModel @Inject constructor(private val repository: BlackJackG
         createDeck(_uiState.value.deckId)
     }
 
-    private fun createDeck(deckId: String) {
+     fun createDeck(deckId: String) {
         viewModelScope.launch {
             updateEventMessage("Embaralhando Cartas ...")
 

@@ -1,5 +1,8 @@
 package com.gilbersoncampos.cardgame.ui.screen
 
+import android.content.Intent
+import android.provider.DocumentsContract
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,7 +39,7 @@ import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import com.gilbersoncampos.cardgame.R
 import com.gilbersoncampos.cardgame.data.model.Card as CardGame
-
+const val CREATE_FILE = 1
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun GameScreen(viewmodel: GameScreenViewModel = hiltViewModel()) {
@@ -84,7 +88,10 @@ fun DeckComponent(
         if (gameIsFinished) {
             Dialog(onDismissRequest = onRestartGame) {
                 Card() {
-                    Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(eventMessage)
                         Spacer(Modifier.height(8.dp))
                         Button(onClick = onRestartGame) {

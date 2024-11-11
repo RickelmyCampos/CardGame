@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("kotlin-kapt")
     alias(libs.plugins.google.dagger.hilt.android)
@@ -21,6 +24,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        val secretPropertiesFile = rootProject.file("secrets.properties")
+        val secretProperties = Properties()
+        secretProperties.load(FileInputStream(secretPropertiesFile))
+        buildConfigField(
+            "String",
+            "URL",
+            secretProperties["URL"] as String
+        )
     }
 
     buildTypes {
@@ -41,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.7"
@@ -81,14 +93,17 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     //hilt Navigation
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.kotlinx.serialization.json)
     //retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
+    //test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation("io.mockk:mockk:1.13.13")
 }
-kapt{
-    correctErrorTypes=true
+kapt {
+    correctErrorTypes = true
 }
